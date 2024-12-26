@@ -17,17 +17,35 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    - name: Git Semantic Version
+      uses: PaulHatch/semantic-version@v4.0.3
+      with:
+        #Cualquier mensaje con major sabra que es una version mayor y colocara el formato indicado
+        major_pattern: "major:"
+        minor_pattern: "feat:"
+        format: "${major}.${minor}.${patch}-prerealese${increment}"
+      id: version
+      
       #Nuevo paso, autenticarme en docker hub
     - name: Proceso de login con Docker
       #Declaramos las variables de entorno, para que lea los secretos generados para autenticarnos con docker
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        
       #Estos comandos se ejecutaran dentro del servidor, permitiendo asi que nos logueemos para poder hacer el push de la imagen a docker hub
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       
     - name: Construir la imagen de docker
-      run: docker build -t luitzy/docker-graphql:0.0.2 . 
+      env:
+        NEW_VERSION: ${{ steps.version.outputs.version }}
+
+      run: docker build -t luitzy/docker-graphql:${NEW_VERSION} . 
 
     - name: Subir imagen de docker
-      run: docker push luitzy/docker-graphql:0.0.2 
+      env:
+        NEW_VERSION: ${{ steps.version.outputs.version }}
+
+      run: docker push luitzy/docker-graphql:${NEW_VERSION}
+
+
