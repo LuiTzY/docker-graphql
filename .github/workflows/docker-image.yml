@@ -13,6 +13,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      #Nuevo paso, autenticarme en docker hub
+    - name: Login Docker
+      #Declaramos las variables de entorno, para que lea los secretos generados para autenticarnos con docker
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      #Estos comandos se ejecutaran dentro del servidor, permitiendo asi que nos logueemos para poder hacer el push de la imagen a docker hub
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
