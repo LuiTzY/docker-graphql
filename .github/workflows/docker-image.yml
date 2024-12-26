@@ -27,7 +27,7 @@ jobs:
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       
     - name: Construir la imagen de docker
-      run: docker build . --file Dockerfile --t luitzy/docker-graphql:0.0.2 .
+      run: docker build . --file Dockerfile -t luitzy/docker-graphql:0.0.2 .
 
     - name: Subir imagen de docker
       run: docker push luitzy/docker-graphql:0.0.2 
